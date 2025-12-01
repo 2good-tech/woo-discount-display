@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node (if ever used)
+node_modules/
+npm-debug.log
+
+# Composer (if ever used)
+/vendor/
+
+# Build files
+*.zip
+*.tar.gz
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# WordPress specific
+.htaccess
+wp-config.php

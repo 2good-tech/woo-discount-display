@@ -1,0 +1,105 @@
+/**
+ * WooCommerce Discount Display Styles
+ */
+ 
+.wdd-discount-info {
+    display: inline-block;
+	background: #ee1d26;
+	/* background: #e74c3c; */
+    color: #ffffff;
+    padding: 0 0 0 1em;
+    /* margin: 5px 0; */
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s ease-in-out; 
+    cursor: default;
+}
+
+.wdd-discount-info:hover {
+    /*background: #cf1820;*/
+    /*transform: translateY(-1px);*/
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Alternative green style - uncomment to use */
+/*
+.wdd-discount-info {background: #27ae60;}
+.wdd-discount-info:hover {background: #209752;}
+*/
+
+/* Percentage badge styling */
+.wdd-percentage {
+    display: inline-block;
+    background: #2c3e50;
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 5px;
+    vertical-align: middle;
+    /* border: 2px solid #ffffff; */
+}
+
+
+/* Hidden state for JS discounts */
+.wdd-discount-info.wdd-js-discount.wdd-hidden {
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+}
+
+.wdd-discount-info.wdd-js-discount {
+    white-space: nowrap;
+}
+
+/* Smooth transitions for JS-generated discounts */
+/*.wdd-discount-info.wdd-js-discount {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.9s ease, visibility 0.9s ease;
+}*/
+
+/*.wdd-discount-info.wdd-js-discount {
+    display: table;
+}*/
+
+/* Responsive adjustments */
+
+@media screen and (min-width: 768px) {
+    .woocommerce-variation-price {
+        display: flex;
+        align-items: center;
+    }
+}
+
+
+/* Integration with popular themes */
+
+/* Storefront theme compatibility */
+.storefront .wdd-discount-container {
+    margin: 15px 0;
+}
+
+/* Astra theme compatibility */
+.astra-theme .wdd-discount-container {
+    margin: 12px 0;
+}
+
+/* OceanWP theme compatibility */
+.oceanwp-theme .wdd-discount-container {
+    margin: 10px 0;
+}
+
+/* GeneratePress theme compatibility */
+.generate-theme .wdd-discount-container {
+    margin: 10px 0;
+}
+
+/* Phlox theme compatibility */
+.aux-container .wdd-discount-container {
+    margin: 0.5em 0;
+    margin-top: -1em;
+}
