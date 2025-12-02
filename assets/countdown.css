@@ -1,0 +1,104 @@
+/**
+ * WooCommerce Discount Display - Countdown Styles
+ */
+
+/* Countdown container */
+.wdd-countdown-container {
+    margin-top: 10px;
+}
+
+.wdd-countdown {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+    cursor: default;
+    user-select: none;
+}
+
+.wdd-countdown:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Static date display (more than 48h) */
+.wdd-countdown-static, .wdd-countdown-urgent {
+    background: #f8f9fa;
+    color: #495057;
+    /* border: 1px solid #dee2e6; */
+}
+
+.wdd-countdown-static .wdd-countdown-label {
+    color: #6c757d;
+}
+
+.wdd-countdown-static .wdd-countdown-date {
+    font-weight: 700;
+    color: #212529;
+}
+
+/* Urgent countdown (less than 48h) */
+.wdd-countdown-urgent .wdd-countdown-label {
+    padding-right: 4px;
+    color: #6c757d;
+}
+
+.wdd-countdown-urgent .wdd-countdown-timer {
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #ee1d26;
+}
+
+/* Expired state */
+.wdd-countdown.wdd-expired {
+    background: #6c757d;
+    color: #ffffff;
+    opacity: 0.7;
+}
+
+/* Timer segments styling */
+.wdd-time-segment {
+    display: inline-block;
+    text-align: center;
+}
+
+.wdd-time-separator {
+    opacity: 0.7;
+    /* margin: 0 2px; */
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 480px) {
+    .wdd-countdown {
+        font-size: 12px;
+    }
+}
+
+/* Theme compatibility */
+
+/* Storefront theme */
+.storefront .wdd-countdown-container {
+    margin-top: 12px;
+}
+
+/* Astra theme */
+.astra-theme .wdd-countdown-container {
+    margin-top: 10px;
+}
+
+/* OceanWP theme */
+.oceanwp-theme .wdd-countdown-container {
+    margin-top: 8px;
+}
+
+/* GeneratePress theme */
+.generate-theme .wdd-countdown-container {
+    margin-top: 8px;
+}
+
+/* Phlox theme */
+.aux-container .wdd-countdown-container {
+    margin-top: 8px;
+}

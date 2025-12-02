@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Discount Display
  * Description: Displays discount information below product prices when products are on promotion. Shows "Save: [amount] -x%" for products with discounts.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: 2GOOD Technologies Ltd.
  * Author URI: https://2good.tech
  * License: GPL v2 or later
@@ -28,7 +28,13 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 // Define plugin constants
 define('WDD_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WDD_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('WDD_VERSION', '1.0.0');
+define('WDD_VERSION', '1.1.0');
+
+/**
+ * Feature Toggles - Set to true/false to enable/disable features
+ */
+define('WDD_ENABLE_SALE_COUNTDOWN', true);  // Enable/disable sale end date countdown feature
+define('WDD_COUNTDOWN_THRESHOLD_HOURS', 48); // Hours threshold for showing countdown vs static date
 
 /**
  * Main Plugin Class
@@ -79,6 +85,74 @@ class WooDiscountDisplay {
                     'currency_thousand_sep' => wc_get_price_thousand_separator()
                 ));
             }
+            
+            // Enqueue countdown script if feature is enabled and product has sale end date
+            if (WDD_ENABLE_SALE_COUNTDOWN && $product && $this->product_has_sale_end_date($product)) {
+                wp_enqueue_style('wdd-countdown-styles', WDD_PLUGIN_URL . 'assets/countdown.css', array(), WDD_VERSION);
+                wp_enqueue_script('wdd-countdown-script', WDD_PLUGIN_URL . 'assets/countdown.js', array('jquery'), WDD_VERSION, true);
+                
+                // Localize countdown script
+                wp_localize_script('wdd-countdown-script', 'wdd_countdown_params', array(
+                    'sale_expires_text' => __('Sale expires at:', 'woo-discount-display'),
+                    'sale_ends_in_text' => __('Sale ends in:', 'woo-discount-display'),
+                    'expired_text' => __('Sale ended', 'woo-discount-display'),
+                    'threshold_hours' => WDD_COUNTDOWN_THRESHOLD_HOURS
+                ));
+            }
+        }
+    }
+    
+    /**
+     * Check if product has a sale end date
+     */
+    private function product_has_sale_end_date($product) {
+        if (!$product || !$product->is_on_sale()) {
+            return false;
+        }
+        
+        if ($product->is_type('variable')) {
+            // Check if any variation has a sale end date
+            $variations = $product->get_children();
+            foreach ($variations as $variation_id) {
+                $variation = wc_get_product($variation_id);
+                if ($variation) {
+                    $sale_end = $variation->get_date_on_sale_to();
+                    if ($sale_end) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } else {
+            $sale_end = $product->get_date_on_sale_to();
+            return !empty($sale_end);
+        }
+    }
+    
+    /**
+     * Get sale end timestamp for a product
+     */
+    private function get_sale_end_timestamp($product) {
+        if ($product->is_type('variable')) {
+            // Get the earliest sale end date among variations
+            $earliest_end = null;
+            $variations = $product->get_children();
+            foreach ($variations as $variation_id) {
+                $variation = wc_get_product($variation_id);
+                if ($variation) {
+                    $sale_end = $variation->get_date_on_sale_to();
+                    if ($sale_end) {
+                        $timestamp = $sale_end->getTimestamp();
+                        if ($earliest_end === null || $timestamp < $earliest_end) {
+                            $earliest_end = $timestamp;
+                        }
+                    }
+                }
+            }
+            return $earliest_end;
+        } else {
+            $sale_end = $product->get_date_on_sale_to();
+            return $sale_end ? $sale_end->getTimestamp() : null;
         }
     }
     /**
@@ -119,7 +193,7 @@ class WooDiscountDisplay {
         $discount_percentage = floor(($discount_amount / $regular_price) * 100);
         
         if ($discount_amount > 0) {
-            echo $this->render_discount_info($discount_amount, $discount_percentage);
+            echo $this->render_discount_info($discount_amount, $discount_percentage, $product);
         }
     }    /**
      * Display discount info for variable products
@@ -139,7 +213,7 @@ class WooDiscountDisplay {
         if ($price_data['same_prices'] && $price_data['regular_price'] > $price_data['sale_price'] && $price_data['sale_price'] > 0) {
             $discount_amount = $price_data['regular_price'] - $price_data['sale_price'];
             $discount_percentage = round(($discount_amount / $price_data['regular_price']) * 100);
-            echo $this->render_discount_info($discount_amount, $discount_percentage);
+            echo $this->render_discount_info($discount_amount, $discount_percentage, $product);
         }
         // If variations have different prices, JavaScript will handle the display
     }
@@ -187,7 +261,7 @@ class WooDiscountDisplay {
     /**
      * Render the discount information HTML
      */
-    private function render_discount_info($discount_amount, $discount_percentage) {
+    private function render_discount_info($discount_amount, $discount_percentage, $product = null) {
         $currency_symbol = get_woocommerce_currency_symbol();
         $formatted_amount = wc_price($discount_amount);
         
@@ -199,7 +273,55 @@ class WooDiscountDisplay {
         );
         $html .= ' <span class="wdd-percentage">-' . $discount_percentage . '%</span>';
         $html .= '</div>';
+        
+        // Add countdown if enabled and product has sale end date
+        if (WDD_ENABLE_SALE_COUNTDOWN && $product) {
+            $sale_end_timestamp = $this->get_sale_end_timestamp($product);
+            if ($sale_end_timestamp) {
+                $html .= $this->render_countdown($sale_end_timestamp);
+            }
+        }
+        
         $html .= '</div>';        
+        return $html;
+    }
+    
+    /**
+     * Render the countdown HTML
+     */
+    private function render_countdown($end_timestamp) {
+        $now = current_time('timestamp');
+        $time_remaining = $end_timestamp - $now;
+        $threshold_seconds = WDD_COUNTDOWN_THRESHOLD_HOURS * 3600;
+        
+        // Format the end date for display - only show date without time
+        // WooCommerce stores sale end as end of day, so showing time can be confusing
+        $date_format = get_option('date_format');
+        $formatted_date = date_i18n($date_format, $end_timestamp);
+        
+        $html = '<div class="wdd-countdown-container" data-end-timestamp="' . esc_attr($end_timestamp) . '" data-threshold="' . esc_attr($threshold_seconds) . '">';
+        
+        if ($time_remaining <= 0) {
+            // Sale has ended
+            $html .= '<div class="wdd-countdown wdd-expired">';
+            $html .= '<span class="wdd-countdown-label">' . esc_html__('Sale ended', 'woo-discount-display') . '</span>';
+            $html .= '</div>';
+        } elseif ($time_remaining <= $threshold_seconds) {
+            // Less than threshold - show live countdown
+            $html .= '<div class="wdd-countdown wdd-countdown-urgent">';
+            $html .= '<span class="wdd-countdown-label">' . esc_html__('Sale ends in:', 'woo-discount-display') . '</span> ';
+            $html .= '<span class="wdd-countdown-timer" data-end="' . esc_attr($end_timestamp) . '"></span>';
+            $html .= '</div>';
+        } else {
+            // More than threshold - show static date
+            $html .= '<div class="wdd-countdown wdd-countdown-static">';
+            $html .= '<span class="wdd-countdown-label">' . esc_html__('Sale expires at:', 'woo-discount-display') . '</span> ';
+            $html .= '<span class="wdd-countdown-date">' . esc_html($formatted_date) . '</span>';
+            $html .= '</div>';
+        }
+        
+        $html .= '</div>';
+        
         return $html;
     }
 }

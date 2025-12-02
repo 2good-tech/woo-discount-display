@@ -2,9 +2,9 @@
 
 A WordPress plugin that automatically displays discount information below product prices when products are on promotion in WooCommerce.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-green.svg)
-![WooCommerce](https://img.shields.io/badge/WooCommerce-8.0%2B-purple.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
+![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-green.svg)
+![WooCommerce](https://img.shields.io/badge/WooCommerce-5.0%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-orange.svg)
 
 ## 📋 Description
@@ -14,8 +14,10 @@ WooCommerce Discount Display enhances your WooCommerce store by automatically sh
 ### ✨ Key Features
 
 - **Automatic Discount Display** - Shows savings amount and percentage for all sale products
+- **Sale Countdown Timer** - Displays sale end date or live countdown when sale is ending soon
 - **Variable Product Support** - Dynamically updates discount information when customers select product variations
 - **Simple & Variable Products** - Works seamlessly with both product types
+- **Cache-Friendly Countdown** - JavaScript-based timer works perfectly with any caching plugin
 - **Responsive Design** - Mobile-friendly display that adapts to all screen sizes
 - **Theme Compatible** - Pre-configured compatibility with popular themes (Storefront, Astra, OceanWP, GeneratePress, Phlox)
 - **Customizable Styling** - Easy-to-modify CSS for matching your brand
@@ -63,7 +65,26 @@ Save: $XX.XX -XX%
 - The percentage is automatically calculated and rounded down
 - Both values update in real-time for variable products
 
+### Sale Countdown
+
+When a product has a sale end date set in WooCommerce:
+
+- **More than 48 hours remaining** → Shows: `Sale expires at: Dec 5, 2025`
+- **Less than 48 hours remaining** → Shows: `Sale ends in: 1d 21h 23m 45s` (live countdown)
+- **Sale ended** → Shows: `Sale ended`
+
+The countdown threshold (default 48 hours) can be configured in the plugin file.
+
 ## 🎨 Customization
+
+### Feature Toggles
+
+The plugin includes feature toggles at the top of the main PHP file:
+
+```php
+define('WDD_ENABLE_SALE_COUNTDOWN', true);   // Enable/disable countdown feature
+define('WDD_COUNTDOWN_THRESHOLD_HOURS', 48); // Hours before showing live countdown
+```
 
 ### Styling
 
@@ -113,8 +134,10 @@ The plugin is translation-ready and includes:
 ```
 woo-discount-display/
 ├── assets/
-│   ├── style.css                    # Main stylesheet
-│   └── variation-discount.js        # Variable product handler
+│   ├── style.css                    # Main discount styles
+│   ├── countdown.css                # Countdown timer styles
+│   ├── variation-discount.js        # Variable product handler
+│   └── countdown.js                 # Live countdown timer
 ├── languages/
 │   ├── woo-discount-display.pot     # Translation template
 │   ├── woo-discount-display-en_US.po
@@ -133,6 +156,14 @@ woo-discount-display/
 - **Performance Optimized** - JavaScript only loads on product pages with variations
 
 ## 📝 Changelog
+
+### Version 1.1.0 (2025-12-01)
+- Added sale countdown timer feature
+- Shows static date when sale ends in more than 48 hours
+- Shows live countdown when sale ends within 48 hours
+- Countdown is cache-friendly (uses client-side JavaScript)
+- Added countdown styles and translations (EN, BG)
+- Configurable countdown threshold
 
 ### Version 1.0.0 (2025-11-19)
 - Initial public release
