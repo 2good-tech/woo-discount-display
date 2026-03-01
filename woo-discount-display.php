@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Discount Display
  * Description: Displays discount information below product prices when products are on promotion. Shows "Save: [amount] -x%" for products with discounts.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: 2GOOD Technologies Ltd.
  * Author URI: https://2good.tech
  * License: GPL v2 or later
@@ -28,13 +28,27 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 // Define plugin constants
 define('WDD_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WDD_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('WDD_VERSION', '1.1.0');
+define('WDD_VERSION', '1.2.0');
 
 /**
  * Feature Toggles - Set to true/false to enable/disable features
  */
 define('WDD_ENABLE_SALE_COUNTDOWN', true);  // Enable/disable sale end date countdown feature
 define('WDD_COUNTDOWN_THRESHOLD_HOURS', 48); // Hours threshold for showing countdown vs static date
+
+// Load admin menu
+if (is_admin()) {
+    require_once WDD_PLUGIN_PATH . 'includes/class-2good-admin-menu.php';
+    _2GOOD_Admin_Menu::init();
+}
+
+// GitHub auto-updater
+require_once WDD_PLUGIN_PATH . 'includes/class-2good-github-updater.php';
+new _2GOOD_GitHub_Updater(
+    'woo-discount-display/woo-discount-display.php',
+    '2good-tech',
+    'woo-discount-display'
+);
 
 /**
  * Main Plugin Class
