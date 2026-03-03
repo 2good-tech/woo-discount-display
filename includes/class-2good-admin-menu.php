@@ -21,7 +21,6 @@ if (!class_exists('_2GOOD_Admin_Menu')) {
          */
         public static function init() {
             add_action('admin_menu', array(__CLASS__, 'register_parent_menu'), 5);
-            add_action('admin_menu', array(__CLASS__, 'register_submenu'), 10);
             add_action('admin_init', array(__CLASS__, 'handle_plugin_toggle'));
         }
 
@@ -102,20 +101,6 @@ if (!class_exists('_2GOOD_Admin_Menu')) {
         }
 
         /**
-         * Register the Discount Display submenu
-         */
-        public static function register_submenu() {
-            add_submenu_page(
-                '2good-settings',
-                'Discount Display',
-                'Discount Display',
-                'manage_options',
-                '2good-discount-display',
-                array(__CLASS__, 'display_settings_page')
-            );
-        }
-
-        /**
          * Get available update info from WP's update transient
          */
         private static function get_update_info() {
@@ -153,7 +138,7 @@ if (!class_exists('_2GOOD_Admin_Menu')) {
             }
 
             if (isset($_GET['toggled'])) {
-                echo '<div class="notice notice-success is-dismissible"><p></p></div>';
+                echo '<div class="notice notice-success is-dismissible"><p>Plugin status updated.</p></div>';
             }
 
             echo '<div class="wrap"><h1>2GOOD Technologies Ltd.</h1>';
@@ -214,23 +199,6 @@ if (!class_exists('_2GOOD_Admin_Menu')) {
                 echo '</tr>';
             }
             echo '</tbody></table></div>';
-        }
-
-        /**
-         * Display the Discount Display settings page
-         */
-        public static function display_settings_page() {
-            if (!current_user_can('manage_options')) { return; }
-            ?>
-            <div class="wrap">
-                <h1>WooCommerce Discount Display</h1>
-                <div class="card" style="max-width:600px;padding:20px;">
-                    <h2 style="margin-top:0;">Status: <span style="color:#46b450;">Active &#10003;</span></h2>
-                    <p>Displays discount information below product prices when products are on promotion.</p>
-                    <p>No configurable settings yet.</p>
-                </div>
-            </div>
-            <?php
         }
     }
 }

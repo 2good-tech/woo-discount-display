@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Discount Display
  * Description: Displays discount information below product prices when products are on promotion. Shows "Save: [amount] -x%" for products with discounts.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: 2GOOD Technologies Ltd.
  * Author URI: https://2good.tech
  * License: GPL v2 or later
@@ -28,7 +28,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 // Define plugin constants
 define('WDD_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WDD_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('WDD_VERSION', '1.2.0');
+define('WDD_VERSION', '1.2.1');
 
 /**
  * Feature Toggles - Set to true/false to enable/disable features
@@ -40,6 +40,32 @@ define('WDD_COUNTDOWN_THRESHOLD_HOURS', 48); // Hours threshold for showing coun
 if (is_admin()) {
     require_once WDD_PLUGIN_PATH . 'includes/class-2good-admin-menu.php';
     _2GOOD_Admin_Menu::init();
+
+    // Register plugin-specific submenu
+    /* add_action('admin_menu', function () {
+        add_submenu_page(
+            '2good-settings',
+            'Discount Display',
+            'Discount Display',
+            'manage_options',
+            '2good-discount-display',
+            'wdd_settings_page'
+        );
+    }, 10);
+
+    function wdd_settings_page() {
+        if (!current_user_can('manage_options')) { return; }
+        ?>
+        <div class="wrap">
+            <h1>WooCommerce Discount Display</h1>
+            <div class="card" style="max-width:600px;padding:20px;">
+                <h2 style="margin-top:0;">Status: <span style="color:#46b450;">Active &#10003;</span></h2>
+                <p>Displays discount information below product prices when products are on promotion.</p>
+                <p>No configurable settings yet.</p>
+            </div>
+        </div>
+        <?php
+    } */
 }
 
 // GitHub auto-updater
