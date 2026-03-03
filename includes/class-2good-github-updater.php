@@ -39,6 +39,7 @@ if (!class_exists('_2GOOD_GitHub_Updater')) {
 
             add_filter('pre_set_site_transient_update_plugins', array($this, 'check_update'));
             add_filter('plugins_api', array($this, 'plugin_info'), 10, 3);
+            add_filter('upgrader_pre_install', array($this, 'before_install'), 10, 2);
             add_filter('upgrader_post_install', array($this, 'after_install'), 10, 3);
         }
 
@@ -191,6 +192,16 @@ if (!class_exists('_2GOOD_GitHub_Updater')) {
         }
 
         /**
+         * Store whether the plugin was active before the update begins
+         */
+        public function before_install($response, $hook_extra) {
+            if (isset($hook_extra['plugin']) && $hook_extra['plugin'] === $this->plugin_file) {
+                $this->was_active = is_plugin_active($this->plugin_file);
+            }
+            return $response;
+        }
+
+        /**
          * Rename the extracted folder to match the plugin slug (hooked to upgrader_post_install)
          *
          * GitHub ZIPs extract to {repo}-{tag}/ but WP expects {slug}/
@@ -207,7 +218,7 @@ if (!class_exists('_2GOOD_GitHub_Updater')) {
             $result['destination'] = $proper_destination;
 
             // Re-activate if it was active before the update
-            if (is_plugin_active($this->plugin_file)) {
+            if (!empty($this->was_active)) {
                 activate_plugin($this->plugin_file);
             }
 
