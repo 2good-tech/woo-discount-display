@@ -54,6 +54,7 @@
 
 .wdd-discount-info.wdd-js-discount {
     white-space: nowrap;
+    margin: 4px 0;
 }
 
 /* Smooth transitions for JS-generated discounts */

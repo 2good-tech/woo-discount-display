@@ -7,6 +7,11 @@
     margin-top: 10px;
 }
 
+.wdd-countdown-container.wdd-js-countdown {
+    margin-top: 4px !important;
+    margin-bottom: 4px;
+}
+
 .wdd-countdown {
     display: inline-block;
     padding: 2px 12px;
@@ -46,6 +51,7 @@
 }
 
 .wdd-countdown-urgent .wdd-countdown-timer {
+    white-space: nowrap;
     font-weight: 700;
     letter-spacing: 2px;
     color: #ee1d26;

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Discount Display
  * Description: Displays discount information below product prices when products are on promotion. Shows "Save: [amount] -x%" for products with discounts.
- * Version: 1.2.1
+ * Version: 1.3.0
  * Plugin URI: https://github.com/2good-tech/woo-discount-display
  * Author: 2GOOD Technologies Ltd.
  * Author URI: https://2good.tech
@@ -29,7 +29,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 // Define plugin constants
 define('WDD_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WDD_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('WDD_VERSION', '1.2.1');
+define('WDD_VERSION', '1.3.0');
 
 /**
  * Feature Toggles - Set to true/false to enable/disable features
@@ -116,6 +116,25 @@ class WooDiscountDisplay {
             if ($product && is_object($product) && method_exists($product, 'is_type') && $product->is_type('variable') && $this->has_different_variation_prices($product)) {
                 wp_enqueue_script('wdd-variation-script', WDD_PLUGIN_URL . 'assets/variation-discount.js', array('jquery'), WDD_VERSION, true);
                 
+                // Build variation sale end dates map for countdown
+                $variation_sale_dates = array();
+                if (WDD_ENABLE_SALE_COUNTDOWN) {
+                    $children = $product->get_children();
+                    $date_format = get_option('date_format');
+                    foreach ($children as $variation_id) {
+                        $variation = wc_get_product($variation_id);
+                        if ($variation) {
+                            $sale_end = $variation->get_date_on_sale_to();
+                            if ($sale_end) {
+                                $variation_sale_dates[$variation_id] = array(
+                                    'timestamp' => $sale_end->getTimestamp(),
+                                    'formatted_date' => date_i18n($date_format, $sale_end->getTimestamp())
+                                );
+                            }
+                        }
+                    }
+                }
+                
                 // Localize script for translation and currency formatting
                 wp_localize_script('wdd-variation-script', 'wdd_params', array(
                     'save_text' => __('Save: ', 'woo-discount-display'),
@@ -123,7 +142,13 @@ class WooDiscountDisplay {
                     'currency_pos' => get_option('woocommerce_currency_pos'),
                     'currency_decimals' => wc_get_price_decimals(),
                     'currency_decimal_sep' => wc_get_price_decimal_separator(),
-                    'currency_thousand_sep' => wc_get_price_thousand_separator()
+                    'currency_thousand_sep' => wc_get_price_thousand_separator(),
+                    'countdown_enabled' => WDD_ENABLE_SALE_COUNTDOWN,
+                    'countdown_threshold' => WDD_COUNTDOWN_THRESHOLD_HOURS * 3600,
+                    'variation_sale_dates' => $variation_sale_dates,
+                    'sale_expires_text' => __('Sale expires at:', 'woo-discount-display'),
+                    'sale_ends_in_text' => __('Sale ends in:', 'woo-discount-display'),
+                    'expired_text' => __('Sale ended', 'woo-discount-display'),
                 ));
             }
             
@@ -331,7 +356,7 @@ class WooDiscountDisplay {
      * Render the countdown HTML
      */
     private function render_countdown($end_timestamp) {
-        $now = current_time('timestamp');
+        $now = time(); // UTC to match JS Date.now() and WC_DateTime::getTimestamp()
         $time_remaining = $end_timestamp - $now;
         $threshold_seconds = WDD_COUNTDOWN_THRESHOLD_HOURS * 3600;
         

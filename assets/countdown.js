@@ -23,6 +23,12 @@
      * Initialize a single countdown timer
      */
     function initSingleCountdown($container) {
+        // Skip if already initialized (prevents duplicate intervals on re-init)
+        if ($container.data('wdd-initialized')) {
+            return;
+        }
+        $container.data('wdd-initialized', true);
+
         var endTimestamp = parseInt($container.data('end-timestamp'), 10);
         var thresholdSeconds = parseInt($container.data('threshold'), 10);
         

@@ -23,6 +23,7 @@ jQuery(document).ready(function ($) {
             !priceContainer.length || !priceContainer.is(':visible') || priceContainer.html().trim() === '') {
             //discountElement.addClass('wdd-hidden');
             discountElement.remove();
+            priceContainer.find('.wdd-countdown-container.wdd-js-countdown').remove();
 
             //console.log('No variation data or price container not ready');
             return;
@@ -35,6 +36,7 @@ jQuery(document).ready(function ($) {
         if (regularPrice <= salePrice || salePrice <= 0) {
             //discountElement.addClass('wdd-hidden');
             discountElement.remove();
+            priceContainer.find('.wdd-countdown-container.wdd-js-countdown').remove();
             //console.log('Product is not on sale or sale price is invalid');
             return;
         }
@@ -122,6 +124,75 @@ jQuery(document).ready(function ($) {
 
         // Update the content and show the element with smooth transition
         discountElement.html(discountText).removeClass('wdd-hidden');
+
+        // Handle countdown for this variation
+        priceContainer.find('.wdd-countdown-container.wdd-js-countdown').remove();
+
+        if (typeof wdd_params !== 'undefined' && wdd_params.countdown_enabled && wdd_params.variation_sale_dates && variation.variation_id) {
+            var saleData = wdd_params.variation_sale_dates[variation.variation_id];
+            if (saleData) {
+                var countdownHtml = buildCountdownHtml(parseInt(saleData.timestamp, 10), saleData.formatted_date);
+                if (countdownHtml) {
+                    var $countdown = $(countdownHtml).addClass('wdd-js-countdown');
+                    discountElement.after($countdown);
+                    // Let countdown.js initialize the live timer
+                    $(document).trigger('wdd_content_loaded');
+                }
+            }
+        }
+    }
+
+    /**
+     * Build countdown HTML for a variation's sale end date
+     */
+    function buildCountdownHtml(endTimestamp, formattedDate) {
+        if (!endTimestamp) return '';
+
+        var thresholdSeconds = (typeof wdd_params !== 'undefined' && wdd_params.countdown_threshold)
+            ? parseInt(wdd_params.countdown_threshold, 10)
+            : 172800; // default 48h
+
+        var now = Math.floor(Date.now() / 1000);
+        var timeRemaining = endTimestamp - now;
+
+        var html = '<div class="wdd-countdown-container" data-end-timestamp="' + endTimestamp + '" data-threshold="' + thresholdSeconds + '">';
+
+        if (timeRemaining <= 0) {
+            html += '<div class="wdd-countdown wdd-expired">';
+            html += '<span class="wdd-countdown-label">' + getCountdownText('expired_text') + '</span>';
+            html += '</div>';
+        } else if (timeRemaining <= thresholdSeconds) {
+            html += '<div class="wdd-countdown wdd-countdown-urgent">';
+            html += '<span class="wdd-countdown-label">' + getCountdownText('sale_ends_in_text') + '</span> ';
+            html += '<span class="wdd-countdown-timer" data-end="' + endTimestamp + '"></span>';
+            html += '</div>';
+        } else {
+            html += '<div class="wdd-countdown wdd-countdown-static">';
+            html += '<span class="wdd-countdown-label">' + getCountdownText('sale_expires_text') + '</span> ';
+            html += '<span class="wdd-countdown-date">' + formattedDate + '</span>';
+            html += '</div>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Get countdown translation text
+     */
+    function getCountdownText(key) {
+        if (typeof wdd_params !== 'undefined' && wdd_params[key]) {
+            return wdd_params[key];
+        }
+        if (typeof wdd_countdown_params !== 'undefined' && wdd_countdown_params[key]) {
+            return wdd_countdown_params[key];
+        }
+        var fallbacks = {
+            'sale_expires_text': 'Sale expires at:',
+            'sale_ends_in_text': 'Sale ends in:',
+            'expired_text': 'Sale ended'
+        };
+        return fallbacks[key] || key;
     }
 
     // Listen for variation changes with longer delay to let WooCommerce finish its DOM updates
