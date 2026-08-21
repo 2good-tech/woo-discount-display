@@ -9,12 +9,12 @@
 
 .wdd-countdown-container.wdd-js-countdown {
     margin-top: 4px !important;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
 
 .wdd-countdown {
     display: inline-block;
-    padding: 2px 12px;
+    padding: 2px 8px;
     border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
@@ -25,12 +25,12 @@
 }
 
 .wdd-countdown:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Static date display (more than 48h) */
 .wdd-countdown-static, .wdd-countdown-urgent {
-    background: #f8f9fa;
+    background: #f1f1f1;
     color: #495057;
     /* border: 1px solid #dee2e6; */
 }
