@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Discount Display
  * Description: Displays discount information below product prices when products are on promotion. Shows "Save: [amount] -x%" for products with discounts.
- * Version: 1.3.1
+ * Version: 1.3.2
  * Plugin URI: https://github.com/2good-tech/woo-discount-display
  * Author: 2GOOD Technologies Ltd.
  * Author URI: https://2good.tech
@@ -29,7 +29,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 // Define plugin constants
 define('WDD_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WDD_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('WDD_VERSION', '1.3.1');
+define('WDD_VERSION', '1.3.2');
 
 /**
  * Feature Toggles - Set to true/false to enable/disable features

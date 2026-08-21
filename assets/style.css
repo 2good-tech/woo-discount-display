@@ -68,17 +68,13 @@
     display: table;
 }*/
 
-/* Responsive adjustments */
-
-@media screen and (min-width: 768px) {
-    .woocommerce-variation-price {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        column-gap: 0.5em;
-    }
+/* Variation price container adjustments */
+.woocommerce-variation-price {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 0.5em;
 }
-
 
 /* Integration with popular themes */
 
